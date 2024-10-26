@@ -8,7 +8,9 @@ import {
 } from "react";
 import Web3 from "web3";
 import detectEthereumProvider from "@metamask/detect-provider";
-
+import LoadContract from "@/utils/LoadContract";
+import EthRates from "@/utils/EthRates";
+import Cookies from "js-cookie";
 // Type definitions
 interface Web3Api {
   provider: any | null; // MetaMask provider type can be more specific
@@ -17,7 +19,9 @@ interface Web3Api {
   account: string | null; // Changed to string for clarity
   balance: number | null; // Use number for balance
   Network: string | null; // Changed to 'network' for clarity
-  
+  isAdmin: boolean | null;
+  isSupported: boolean | null;
+  EthPrice: number | null;
 }
 
 // Create Web3 context with appropriate types
@@ -32,16 +36,29 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     account: null,
     balance: null,
     Network: null,
+    isAdmin: null,
+    isSupported: false,
+    EthPrice: null,
   });
 
   // Function to fetch and set account, balance, and network
   const updateWeb3Data = async (web3: Web3) => {
     const accounts = await web3.eth.getAccounts();
     let balance = null;
+    let hashedaddress = null;
+    let networkId = 0;
     if (accounts.length > 0) {
       balance = Number(await web3.eth.getBalance(accounts[0]));
+      hashedaddress = Web3.utils.keccak256(accounts[0]);
+      networkId = Number(await web3.eth.net.getId());
+      Cookies.set("userAccount", accounts[0], { expires: 1 });
+    } else {
+      Cookies.remove("userAccount");
     }
-    const networkId = Number(await web3.eth.net.getId());
+
+    const contract = await LoadContract("CourseMarketplace", web3);
+    const Price = await EthRates();
+
     let network = "";
     switch (networkId) {
       case 1:
@@ -59,6 +76,9 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       case 42:
         network = "Kovan";
         break;
+      case 5777:
+        network = "Ganache";
+        break;
       case 11155111:
         network = "Sepolia";
         break;
@@ -68,10 +88,16 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     setWeb3Api({
       provider: web3.currentProvider,
       web3,
-      contract: null, // Initialize contract as needed later
+      contract: contract, // Initialize contract as needed later
       account: accounts[0] || null,
-      balance: balance !== null ? Number(web3.utils.fromWei(balance.toString(), "ether")) : null,
-      Network:network,
+      balance:
+        balance !== null
+          ? Number(web3.utils.fromWei(balance.toString(), "ether"))
+          : null,
+      Network: network,
+      isAdmin: hashedaddress == process.env.NEXT_PUBLIC_ADMIN ? true : false,
+      isSupported: networkId === 5777,
+      EthPrice: Price,
     });
   };
 
@@ -80,7 +106,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       const provider = (await detectEthereumProvider()) as any; // MetaMask provider detection
       if (provider) {
         const web3 = new Web3(provider);
-        
+
         // Update state on initial load
         await updateWeb3Data(web3);
 
@@ -93,7 +119,6 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
         provider.on("chainChanged", async () => {
           await updateWeb3Data(web3);
         });
-
       } else {
         console.error("Please install MetaMask");
         setWeb3Api({
@@ -103,32 +128,18 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
           account: null,
           balance: null,
           Network: null,
+          isAdmin: null,
+          isSupported: false,
+          EthPrice: null,
         });
       }
     };
 
     loadProvider();
-
-    // Cleanup event listeners on component unmount
-    return () => {
-      const provider = web3Api.provider;
-      if (provider) {
-        provider.removeListener("accountsChanged", async () => {
-          await updateWeb3Data(web3Api.web3);
-        });
-        provider.removeListener("chainChanged", async () => {
-          await updateWeb3Data(web3Api.web3);
-        });
-      }
-    };
   }, []);
 
-  console.log(web3Api); // Debugging output
-
   return (
-    <Web3Context.Provider value={web3Api}>
-      {children}
-    </Web3Context.Provider>
+    <Web3Context.Provider value={web3Api}>{children}</Web3Context.Provider>
   );
 }
 

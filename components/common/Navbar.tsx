@@ -1,13 +1,9 @@
-"use client"
+"use client";
 import Link from "next/link";
 import { useWeb3 } from "@/Providers";
 export default function Navbar() {
-
-
-
-  const { web3, provider, contract, account, balance, Network } = useWeb3();
-  console.log(web3); //null
-
+  const { provider, account, contract } = useWeb3();
+  //console.log(contract);
   return (
     <section>
       <div className="relative pt-6 px-4 sm:px-6 lg:px-8">
@@ -18,19 +14,19 @@ export default function Navbar() {
                 href="/"
                 className="font-medium mr-8 text-gray-500 hover:text-gray-900"
               >
-                Product
+                Home
               </Link>
               <Link
-                href="/"
+                href="/marketplace"
                 className="font-medium mr-8 text-gray-500 hover:text-gray-900"
               >
                 Marketplace
               </Link>
               <Link
-                href="/"
+                href="/owned"
                 className="font-medium mr-8 text-gray-500 hover:text-gray-900"
               >
-                Blogs
+                My Courses
               </Link>
             </div>
             <div>
@@ -38,19 +34,23 @@ export default function Navbar() {
                 <div className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 md:py-3 md:px-6">
                   {`Connected`}
                 </div>
-              ) : (
-                <button
-                  className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:px-6"
-                  onClick={() => {
-                    if (provider) {
+              ) : provider ? (
+                <>
+                  <button
+                    className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:px-6"
+                    onClick={() => {
                       provider.request({ method: "eth_requestAccounts" });
-                    } else {
-                      console.error("MetaMask provider not available");
-                    }
-                  }}
-                >
-                  Connect Metamask
-                </button>
+                    }}
+                  >
+                    Connect Metamask
+                  </button>
+                </>
+              ) : (
+                <Link href="https://metamask.io/download/">
+                  <button className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:px-6">
+                    Install Metamask
+                  </button>
+                </Link>
               )}
             </div>
           </div>

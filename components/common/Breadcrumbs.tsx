@@ -6,10 +6,10 @@ export default function Breadcrumbs() {
           <a href="#">Buy</a>
         </li>
         <li className="px-4">
-          <a href="#">My Orders</a>
+          <a href="#">My Courses</a>
         </li>
         <li className="px-4">
-          <a href="#">All Orders</a>
+          <a href="#">Manage Courses</a>
         </li>
       </ol>
     </nav>
