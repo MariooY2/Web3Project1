@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import Course from "@/utils/types";
 import Web3 from "web3";
-
+import { useRouter } from 'next/navigation';
 interface ModalProps {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;
@@ -27,13 +27,15 @@ export default function CourseModal({
   const coursePriceUSD = 5;
   const courseETH = EthPrice ? (coursePriceUSD / EthPrice).toFixed(6) : null;
   const coursePriceETH = courseETH;
-
+  const router = useRouter();
   const handleClose = () => {
     setShowModal(false);
     setEmail("");
     setRepeatEmail("");
     setError("");
   };
+
+
 
   const purchaseCourse = async () => {
     const hexCourseId = Web3.utils.utf8ToHex(course.id).padEnd(34, "0"); // Add padding
@@ -85,6 +87,7 @@ export default function CourseModal({
       setError("");
       await purchaseCourse();
       setShowModal(false);
+      router.refresh();
     }
   };
 

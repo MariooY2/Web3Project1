@@ -73,22 +73,24 @@ function OwnedCourses() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Owned Courses</h1>
-      {ownedCourses.length > 0 ? (
-        ownedCourses.map((course, index) => (
-          <Card
-            key={course.id}
-            title={course.title}
-            price={course.price}
-            orderId={Number(index)}
-            proof={course.proof}
-            image={course.coverImage}
-            owner={course.owner}
-            courseid={Number(course.id)}
-          />
-        ))
-      ) : (
-        <p>No owned courses found.</p>
-      )}
+      <div className="flex flex-wrap gap-4 justify-around">
+        {ownedCourses.length > 0 ? (
+          ownedCourses.map((course, index) => (
+            <Card
+              key={course.id}
+              title={course.title}
+              price={course.price}
+              orderId={Number(index)}
+              proof={course.proof}
+              image={course.coverImage}
+              owner={course.owner}
+              courseid={Number(course.id)}
+            />
+          ))
+        ) : (
+          <p>No owned courses found.</p>
+        )}
+      </div>
     </div>
   );
 }

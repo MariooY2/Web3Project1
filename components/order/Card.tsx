@@ -7,7 +7,7 @@ interface CardProps {
   proof: string;
   owner: string;
   image: string;
-  courseid:number;
+  courseid: number;
 }
 
 export default function Card({
@@ -16,7 +16,8 @@ export default function Card({
   orderId,
   proof,
   owner,
-  image,courseid
+  image,
+  courseid,
 }: CardProps) {
   // Copy to clipboard function for proof
   const handleCopyProof = () => {
@@ -25,9 +26,10 @@ export default function Card({
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+    <div className="lg:w-1/3 sm:w-full bg-white shadow-md rounded-lg overflow-hidden mb-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
       {/* Image Section */}
-      <div className="flex items-center justify-center">
+
+      <div className="flex items-center justify-center ">
         <div className=" relative w-full h-56">
           <Image
             src={image}
@@ -59,7 +61,7 @@ export default function Card({
           {/* Proof with Copy-to-Clipboard */}
           <div className="flex items-center">
             <dt className="text-sm font-medium text-gray-500 w-1/3">Proof</dt>
-            <dd className="text-sm text-gray-900 w-2/3 flex items-center space-x-2">
+            <dd className="text-sm text-gray-900 w-2/3 flex items-center ">
               <span className="break-words">{proof}</span>
               <button
                 onClick={handleCopyProof}
@@ -81,9 +83,10 @@ export default function Card({
       {/* Footer Button */}
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
         <Link href={`course/${courseid}`}>
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none">
-          View Course
-        </button></Link>
+          <button className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none">
+            View Course
+          </button>
+        </Link>
       </div>
     </div>
   );
