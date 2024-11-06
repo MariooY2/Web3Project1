@@ -1,16 +1,13 @@
 import Hero from "@/components/common/Hero";
-import List from "@/components/course/list";
 
-function page() {
+async function Page() {
   return (
     <div>
       <div className="">
         <Hero />
-        
-        <List />
       </div>
     </div>
   );
 }
 
-export default page;
+export default Page;

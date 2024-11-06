@@ -3,7 +3,8 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import Course from "@/utils/types";
 import Web3 from "web3";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+
 interface ModalProps {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;
@@ -21,58 +22,26 @@ export default function CourseModal({
   EthPrice,
   contract,
 }: ModalProps) {
-  const [email, setEmail] = useState("");
-  const [repeatEmail, setRepeatEmail] = useState("");
-  const [error, setError] = useState("");
-  const coursePriceUSD = 5;
-  const courseETH = EthPrice ? (coursePriceUSD / EthPrice).toFixed(6) : null;
-  const coursePriceETH = courseETH;
+  
+  const courseETH = 0.1;
+  const coursePriceETH = Web3.utils.toWei(String(0.1), "ether");
   const router = useRouter();
+
+  // State for accepting terms and error message
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleClose = () => {
     setShowModal(false);
-    setEmail("");
-    setRepeatEmail("");
-    setError("");
   };
-
-
 
   const purchaseCourse = async () => {
     const hexCourseId = Web3.utils.utf8ToHex(course.id).padEnd(34, "0"); // Add padding
-    //ID ---> ASCI
-    //id: "1410474" ----> 0x31343130343734
-    //console.log(hexCourseId);
-
-    const orderHash = Web3.utils.soliditySha3(
-      { type: "bytes16", value: hexCourseId },
-      { type: "address", value: address }
-    );
-    //hex Course ID 16 bytes = 0x31343130343734000000000000000000
-    //address = 93Bd787F60A9433f9f37B4a4CD6BD5f06A63eA60
-    //orderhash = keccak256(0x3134313034373400000000000000000093Bd787F60A9433f9f37B4a4CD6BD5f06A63eA60)
-    //0x2b2d88d403522217e04d6211fc2795511df01ce357dc49b3fe121d30d1936399
-
-    //console.log(orderHash);
-
-    const emailHash = Web3.utils.sha3(email);
-    //test@gmail.com
-    //0xaf257bcc3cf653863a77012256c927f26d8ab55c5bea3751063d049d0538b902
-
-    //console.log(emailHash);
-    const proof = Web3.utils.soliditySha3(
-      { type: "bytes32", value: emailHash },
-      { type: "bytes32", value: orderHash }
-    );
-
-    //proof=keccak256(af257bcc3cf653863a77012256c927f26d8ab55c5bea37510
-    //63d049d0538b9020x2b2d88d403522217e04d6211fc2795511df01ce357dc49b3fe121d30d1936399)
-
-    //console.log(proof);
 
     try {
-      const value = Web3.utils.toWei(String(coursePriceETH), "ether");
+      const value = coursePriceETH;
       const result = await contract.methods
-        .purchaseCourse(hexCourseId, proof)
+        .purchaseCourse(hexCourseId)
         .send({ from: address, value: value });
       console.log(result);
     } catch (error) {
@@ -81,14 +50,15 @@ export default function CourseModal({
   };
 
   const handleSubmit = async () => {
-    if (email !== repeatEmail) {
-      setError("Emails do not match. Please check your entries.");
-    } else {
-      setError("");
-      await purchaseCourse();
-      setShowModal(false);
-      router.refresh();
+    if (!termsAccepted) {
+      setErrorMessage("You must accept the terms of service to proceed.");
+      return;
     }
+
+    setErrorMessage(""); // Clear any previous error
+    await purchaseCourse();
+    router.push("/owned");
+    setShowModal(false);
   };
 
   return (
@@ -103,52 +73,32 @@ export default function CourseModal({
               <label className="block text-gray-700 text-sm font-semibold mb-2">
                 Price (ETH)
               </label>
-
               <input
                 type="number"
                 disabled={true}
-                value={coursePriceETH!}
+                value={courseETH!}
                 className="w-full border rounded-md p-2 "
               />
             </div>
 
-            {/* Email Section */}
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="x@y.com"
-                className="w-full border rounded-md p-2"
-              />
-            </div>
-
-            {/* Repeat Email */}
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Repeat Email
-              </label>
-              <input
-                type="email"
-                value={repeatEmail}
-                onChange={(e) => setRepeatEmail(e.target.value)}
-                placeholder="x@y.com"
-                className="w-full border rounded-md p-2"
-              />
-              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            </div>
-
             {/* Terms Checkbox */}
             <div className="mb-6">
-              <input type="checkbox" id="terms" className="mr-2 h-4 w-4" />
+              <input
+                type="checkbox"
+                id="terms"
+                className="mr-2 h-4 w-4"
+                onChange={() => setTermsAccepted(!termsAccepted)}
+              />
               <label htmlFor="terms" className="text-sm text-gray-700">
-                I accept terms of service and understand my order may be
+                I accept the terms of service and understand my order may be
                 rejected if the data provided above is incorrect.
               </label>
             </div>
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
+            )}
 
             {/* Button Section */}
             <div className="flex justify-between">

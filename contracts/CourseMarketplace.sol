@@ -2,18 +2,13 @@
 pragma solidity ^0.8.0;
 
 contract CourseMarketplace {
-    enum State {
-        Purchased,
-        Activated,
-        Deactivated
-    }
+    
 
     struct Course {
         uint id; //32
         uint price; //32
-        bytes32 proof; //32
         address owner; //20
-        State state; //1
+        
     }
 
     mapping(bytes32 => Course) private ownedCourses;
@@ -32,7 +27,8 @@ contract CourseMarketplace {
     }
 
 
-    function purchaseCourse(bytes16 courseId, bytes32 proof) external payable returns (bytes32) {
+    function purchaseCourse(bytes16 courseId) external payable returns (bytes32) {
+        require(msg.value >= 0.1 ether," you sent less than 0.1 ether");
         bytes32 courseHash = keccak256(abi.encodePacked(courseId, msg.sender));
         
         if (hasCourseOwnership(courseHash)) {
@@ -44,9 +40,7 @@ contract CourseMarketplace {
         ownedCourses[courseHash] = Course({
             id: id,
             price: msg.value,
-            proof: proof,
-            owner: msg.sender,
-            state: State.Purchased
+            owner: msg.sender
         });
         
         return courseHash;
@@ -73,5 +67,25 @@ contract CourseMarketplace {
     function transferOwnership(address newOwner)public onlyOwner{
         owner=newOwner;
     }
+    function withdraw(uint Amount) external onlyOwner  { 
+        uint balance = address(this).balance;
+        require(balance >= Amount, "Amount > Balance cannot withdraw");
+        payable(msg.sender).transfer(Amount);
+    }
+
+    function sellCourse(bytes32 courseHash) external {
+    uint AmountInEth = 1;  // Set amount in Ether
+    uint AmountInWei = AmountInEth * 0.1 ether; // Convert Ether to Wei
+    
+    require(hasCourseOwnership(courseHash), "You don't have ownership of this course");
+    require(address(this).balance >= AmountInWei, "Insufficient contract balance");
+
+    // Update state before transferring funds
+    delete ownedCourses[courseHash];
+
+    // Transfer funds in Wei to the course owner
+    (bool success, ) = payable(msg.sender).call{value: AmountInWei}("");
+    require(success, "Transfer failed");
+}
 
 }

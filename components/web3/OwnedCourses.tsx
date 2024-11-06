@@ -8,11 +8,10 @@ import Course from "@/utils/types"; // Ensure Course type is defined
 import Card from "../order/Card";
 
 function OwnedCourses() {
-  const { account, contract } = useWeb3();
+  const { account, contract,web3 } = useWeb3();
   const [ownedCourses, setOwnedCourses] = useState<
     Array<
       Course & {
-        proof: string;
         price: string;
         owner: string;
         state: number;
@@ -38,7 +37,7 @@ function OwnedCourses() {
         if (ownedCourseDetails && ownedCourseDetails.price) {
           return {
             ...course,
-            proof: ownedCourseDetails.proof, // Assuming 'proof' field exists
+
             price: Web3.utils.fromWei(ownedCourseDetails.price, "ether"), // Convert price to ETH
             owner: ownedCourseDetails.owner,
             state: ownedCourseDetails.state,
@@ -51,7 +50,6 @@ function OwnedCourses() {
         (course) => course !== null
       ) as Array<
         Course & {
-          proof: string;
           price: string;
           state: number;
           owner: string;
@@ -71,7 +69,7 @@ function OwnedCourses() {
   }, [account, contract]);
   console.log(ownedCourses);
   return (
-    <div>
+    <div className="min-h-[90vh]">
       <h1 className="text-2xl font-bold mb-4">Owned Courses</h1>
       <div className="flex flex-wrap gap-4 justify-around">
         {ownedCourses.length > 0 ? (
@@ -81,14 +79,18 @@ function OwnedCourses() {
               title={course.title}
               price={course.price}
               orderId={Number(index)}
-              proof={course.proof}
               image={course.coverImage}
               owner={course.owner}
               courseid={Number(course.id)}
+              contract={contract}
+              account={account}
+              web3={web3}
             />
           ))
         ) : (
-          <p>No owned courses found.</p>
+          <div className="flex justify-center items-center w-full h-full min-h-[80vh]">
+            <p className="lg:text-8xl text-5xl text-center font-semibold">No owned courses found.</p>
+          </div>
         )}
       </div>
     </div>

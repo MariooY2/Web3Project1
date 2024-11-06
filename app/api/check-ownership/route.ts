@@ -1,5 +1,4 @@
 // app/api/check-ownership/route.ts
-
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import Web3 from "web3";
@@ -17,7 +16,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const web3 = new Web3("HTTP://127.0.0.1:7545");
+    const web3 = new Web3(Web3.givenProvider || "HTTP://127.0.0.1:7545");
+    console.log(web3.givenProvider);
     const contract = await LoadContract("CourseMarketplace", web3);
     const hexCourseId = Web3.utils.utf8ToHex(courseId).padEnd(34, "0");
     // Generate course hash or fetch details based on your contract logic
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Check if course ownership is valid
     const isOwner = ownedCourseDetails && ownedCourseDetails.owner === account;
-
+    //console.log(isOwner);
     return NextResponse.json({ isOwner });
   } catch (error) {
     console.error("Error verifying course ownership:", error);

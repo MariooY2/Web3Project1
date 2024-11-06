@@ -19,7 +19,7 @@ export default function RootLayout({
       <body>
         <div className="relative bg-white overflow-hidden">
           <Web3Provider>
-            <div className="relative max-w-7xl mx-auto px-4">
+            <div className="relative mx-auto max-w-[1800px] xl:px-24 px-10">
               <Navbar />
               {children}
             </div>

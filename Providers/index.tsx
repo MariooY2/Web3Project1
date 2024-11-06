@@ -106,7 +106,10 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       const provider = (await detectEthereumProvider()) as any; // MetaMask provider detection
       if (provider) {
         const web3 = new Web3(provider);
-
+        /* ||
+            new Web3.providers.HttpProvider(
+              `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY}`
+            */
         // Update state on initial load
         await updateWeb3Data(web3);
 
