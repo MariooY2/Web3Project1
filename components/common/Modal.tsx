@@ -19,7 +19,6 @@ export default function CourseModal({
   setShowModal,
   course,
   address,
-  EthPrice,
   contract,
 }: ModalProps) {
   

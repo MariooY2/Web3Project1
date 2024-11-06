@@ -1,5 +1,4 @@
 import courses from "@/content/courses"; // Import your courses data
-import Modal from "@/components/common/Modal";
 import Hero from "@/components/course/Hero";
 import Curriculum from "@/components/course/Curriculum";
 import Keypoints from "@/components/course/Keypoints";
@@ -27,7 +26,6 @@ function Page({ params }: Params) {
       <Hero course={course} />
       <Keypoints course={course} />
       <Curriculum locked={true} />
-      <Modal />
     </div>
   );
 }

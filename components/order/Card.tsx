@@ -38,7 +38,7 @@ export default function Card({
         { type: "address", value: account }
       );
       const gasEstimate = await web3?.eth.estimateGas({ from: account });
-      const result = await contract.methods
+      await contract.methods
         .sellCourse(courseHash)
         .send({ from: account, gas: gasEstimate });
       router.push("/marketplace");
