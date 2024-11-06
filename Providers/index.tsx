@@ -96,7 +96,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
           : null,
       Network: network,
       isAdmin: hashedaddress == process.env.NEXT_PUBLIC_ADMIN ? true : false,
-      isSupported: networkId === 5777,
+      isSupported: networkId === 11155111,
       EthPrice: Price,
     });
   };
@@ -109,7 +109,8 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
         /* ||
             new Web3.providers.HttpProvider(
               `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY}`
-            */
+            contractaddress=process.env.NEXT_PUBLIC_CONTRACT_ADDRESS
+              */
         // Update state on initial load
         await updateWeb3Data(web3);
 

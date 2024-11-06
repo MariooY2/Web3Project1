@@ -1,21 +1,17 @@
-import contract from "../public/contracts/CourseMarketplace";
-const LoadContract = async (name: string, web3: any) => {
-  //const res = await fetch(`../contracts/${name}.json`);
-  //console.log(res)
-  //const Artifact = await res.json();
-  const Artifact: any = contract;
-  const networkId = await web3.eth.net.getId();
-  const deployedNetwork = Artifact.networks[Number(networkId)];
 
-  if (!deployedNetwork) {
-    console.error(`Contract not found on network with ID ${networkId}`);
+// Import contract ABI from your compiled artifacts
+import contractABI from "../public/contracts/CourseMarketplace.json";  // Make sure this path is correct
+
+const LoadContract = async (name: string, web3: any) => {
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
+  if (!contractAddress) {
+    console.error("Contract address is not defined in .env");
     return;
   }
 
-  const contractInstance = new web3.eth.Contract(
-    Artifact.abi,
-    deployedNetwork.address
-  );
+  const contractInstance = new web3.eth.Contract(contractABI.abi, contractAddress);
   return contractInstance;
 };
+
 export default LoadContract;
